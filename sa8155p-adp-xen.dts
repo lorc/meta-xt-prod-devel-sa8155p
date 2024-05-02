@@ -1,0 +1,155 @@
+#include "sa8155p-adp.dts"
+/ {
+	chosen {
+		stdout-path = "serial0:115200n8";
+		bootargs = "dom0_mem=1024M console=dtuart dtuart=/soc@0/geniqup@ac0000/serial@a90000 dom0_max_vcpus=2 loglvl=all xsm=flask flask=permissive bootscrub=1";
+		xen,dom0-bootargs = "root=/dev/nfs nfsroot=192.168.10.1:/srv/domd-qcom,vers=3 ip=192.168.10.2 rw rootwait  console=hvc0 ignore_loglevel clk_ignore_unused";
+// nfsroot=192.168.10.1:/srv/domd-qcom,vers=3 ip=192.168.10.2
+		modules {
+			#address-cells = <0x02>;
+			#size-cells = <0x02>;
+
+			module@1 {
+				compatible = "xen,linux-zimage","xen,multiboot-module";
+				reg = <0x00 0xB0000000 0x00 0x3000000>;
+			};
+		};
+	};
+
+	/* Populate memory node with actual memory configuration */
+	memory@80000000 {
+		reg = <0x00 0x80000000 0x00 0x39900000> ,
+		<0x02 0x0        0x1  0x7fd00000>,
+		<0x00 0xC0000000 0x1  0x40000000>;
+	};
+
+	/* psci { */
+	/* 	compatible = "qcom,some-shit"; */
+	/* }; */
+	/delete-node/ reserved-memory;
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		hyp_mem: reserved-memory@85700000 {
+			reg = <0x0 0x85700000 0x0 0x600000>;
+			no-map;
+		};
+
+		xbl_mem: reserved-memory@85d00000 {
+			reg = <0x0 0x85d00000 0x0 0x140000>;
+			no-map;
+		};
+
+		aop_mem: reserved-memory@85f00000 {
+			reg = <0x0 0x85f00000 0x0 0x20000>;
+			no-map;
+		};
+
+		aop_cmd_db: reserved-memory@85f20000 {
+			compatible = "qcom,cmd-db";
+			reg = <0x0 0x85f20000 0x0 0x20000>;
+			no-map;
+		};
+
+		smem_mem: reserved-memory@86000000 {
+			reg = <0x0 0x86000000 0x0 0x200000>;
+			no-map;
+		};
+
+		tz_mem: reserved-memory@86200000 {
+			reg = <0x0 0x86200000 0x0 0x3900000>;
+			no-map;
+		};
+
+		rmtfs_mem: reserved-memory@89b00000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0x0 0x89b00000 0x0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+
+		camera_mem: reserved-memory@8b700000 {
+			reg = <0x0 0x8b700000 0x0 0x500000>;
+			no-map;
+		};
+
+		wlan_mem: reserved-memory@8bc00000 {
+			reg = <0x0 0x8bc00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: reserved-memory@8bd80000 {
+			reg = <0x0 0x8bd80000 0x0 0x80000>;
+			no-map;
+		};
+
+		adsp_mem: reserved-memory@8be00000 {
+			reg = <0x0 0x8be00000 0x0 0x1a00000>;
+			no-map;
+		};
+
+		mpss_mem: reserved-memory@8d800000 {
+			reg = <0x0 0x8d800000 0x0 0x9600000>;
+			no-map;
+		};
+
+		venus_mem: reserved-memory@96e00000 {
+			reg = <0x0 0x96e00000 0x0 0x500000>;
+			no-map;
+		};
+
+		slpi_mem: reserved-memory@97300000 {
+			reg = <0x0 0x97300000 0x0 0x1400000>;
+			no-map;
+		};
+
+		ipa_fw_mem: reserved-memory@98700000 {
+			reg = <0x0 0x98700000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: reserved-memory@98710000 {
+			reg = <0x0 0x98710000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: reserved-memory@98715000 {
+			reg = <0x0 0x98715000 0x0 0x2000>;
+			no-map;
+		};
+
+		spss_mem: reserved-memory@98800000 {
+			reg = <0x0 0x98800000 0x0 0x100000>;
+			no-map;
+		};
+
+		cdsp_mem: reserved-memory@98900000 {
+			reg = <0x0 0x98900000 0x0 0x1400000>;
+			no-map;
+		};
+
+		qseecom_mem: reserved-memory@9e400000 {
+			reg = <0x0 0x9e400000 0x0 0x1400000>;
+			no-map;
+		};
+	};
+
+	soc@0 {
+		/delete-node/ iommu@2ca0000;
+		/delete-node/ gpu@2c00000;
+		/delete-node/ gmu@2c6a000;
+	};
+};
+
+/*
+ * These devices share the same IRQ as our serial console and Xen is
+ * not happy about it.
+ */
+
+/delete-node/ &spi12;
+/delete-node/ &i2c12;

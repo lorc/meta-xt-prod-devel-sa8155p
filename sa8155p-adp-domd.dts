@@ -1,0 +1,96 @@
+#include "sa8155p-adp.dts"
+/*
+ * The device tree compiler (DTC) is allocating the phandle from 1 to
+ * onwards. Reserve a high value for the GIC phandle.
+ */
+#define PHANDLE_GIC (65000)
+
+/ {
+	//this must point to Xen interrupt-parent
+	interrupt-parent = <PHANDLE_GIC>;
+
+	/delete-node/ aliases;
+	/delete-node/ chosen;
+	/delete-node/ cpus;
+	/delete-node/ psci;
+	/delete-node/ timer;
+	passthrough {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+	};
+
+	soc@0 {
+		/delete-node/ timer@17c20000;
+		/delete-node/ etf@6047000;
+		/delete-node/ etf@6b09000;
+		/delete-node/ etm@7040000;
+		/delete-node/ etm@7140000;
+		/delete-node/ etm@7240000;
+		/delete-node/ etm@7340000;
+		/delete-node/ etm@7440000;
+		/delete-node/ etm@7540000;
+		/delete-node/ etm@7640000;
+		/delete-node/ etm@7740000;
+		/delete-node/ etr@6048000;
+		/delete-node/ funnel@6041000;
+		/delete-node/ funnel@6042000;
+		/delete-node/ funnel@6043000;
+		/delete-node/ funnel@6045000;
+		/delete-node/ funnel@6047000;
+		/delete-node/ funnel@6b08000;
+		/delete-node/ funnel@7800000;
+		/delete-node/ funnel@7810000;
+		/delete-node/ replicator@6046000;
+		/delete-node/ replicator@604a000;
+		/delete-node/ replicator@6b0a000;
+		/delete-node/ replicator@6b0a000;
+		/delete-node/ stm@6002000;
+		/delete-node/ lmh@18350800;
+		/delete-node/ lmh@18358800;
+	};
+
+	thermal-zones {
+		/delete-node/ cpu0-thermal;
+		/delete-node/ cpu1-thermal;
+		/delete-node/ cpu2-thermal;
+		/delete-node/ cpu3-thermal;
+		/delete-node/ cpu4-top-thermal;
+		/delete-node/ cpu5-top-thermal;
+		/delete-node/ cpu6-top-thermal;
+		/delete-node/ cpu7-top-thermal;
+		/delete-node/ cpu4-bottom-thermal;
+		/delete-node/ cpu5-bottom-thermal;
+		/delete-node/ cpu6-bottom-thermal;
+		/delete-node/ cpu7-bottom-thermal;
+	};
+};
+
+/* Xen will provide its own GIC, mask ours */
+&intc {
+	compatible = "";
+};
+
+&uart2 {
+	status = "disabled";
+};
+
+&pdc {
+	interrupt-parent = <PHANDLE_GIC>;
+};
+
+&adreno_smmu {
+	status = "disabled";
+};
+
+&apps_smmu {
+	status = "disabled";
+};
+
+&qupv3_id_1 {
+	status = "disabled";
+};
+
+&apps_rsc {
+	/delete-property/ power-domains;
+};
